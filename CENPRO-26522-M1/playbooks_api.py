@@ -77,16 +77,18 @@ def create_call_path(name, timezone):
     response = generic_post("/call-paths", data)
     return response.json()
 
-def patch_call_path(id, name, timezone, starting_node=None, edges=None):
+def patch_call_path(id, name, timezone, starting_node="1", nodes = None, edges=None):
     data={}
     data["id"] = 'de957cb2-2502-4927-80cb-11af072fce22'
     data["name"] = name
     data["time_zone"] = timezone
-
+    data["starting_node"]= starting_node
+    data["nodes"] = nodes
+    data["edges"] = edges
 
     response = generic_patch(f"/call-paths/{id}", data)
     print(response)
-    return response.json()   
+    return response
 
 class TestSum(unittest.TestCase):
 
@@ -114,10 +116,12 @@ class TestSum(unittest.TestCase):
         assert path["is_default"]==False, "Path should not be the default"
 
     def test_patch_path(self):
-        response = patch_call_path("1bb464d1-3367-4d11-8645-9ab6307913e8", "chris-path", "UTC")
-        print(response)
-        assert "id" in response, "Path update should include the id of the path"
+        id = "1bb464d1-3367-4d11-8645-9ab6307913e8"
+        edges = [{'start': '1', 'end': '2', 'edge_type': 'default'}]
+        nodes = [{'id': '1', 'node_type': 'route_to_last_caller', 'record_search_type': 'lead', 'no_answer_failover_type': 'general', 'agent_answer_timeout': 60, 'called_within_days': 30}, {'id': '2', 'node_type': 'forward', 'caller_id_display_type': 'caller'}]
 
+        response = patch_call_path(id, "chris-path2", "UTC", nodes=nodes, edges = edges)
+        
 
 if __name__ == "__main__":
     unittest.main()
