@@ -1,8 +1,12 @@
-import requests
-import time
-import json
+import requests, time, json, os
 
+#base API url
 url="https://h1rejf3su4.execute-api.us-east-1.amazonaws.com/v2"
+
+# Get environment variables
+manager_username = os.getenv('manager_username')
+manager_pass = os.environ.get('manager_pass')
+
 
 def get_manager_token():
     
@@ -20,14 +24,14 @@ def get_manager_token():
     print("Extracting token from API")
     base_url="https://imf-api-staging.insidesales.com/v1/users/credentials"
     data={}
-    data["username"]="insidesales.leads+canarym@trilogy.com"
-    data["password"]="insidesales2manager"
+    data["username"]=manager_username
+    data["password"]=manager_pass
 
-    response = requests.post(base_url, json = data)
+    token_data = requests.post(base_url, json = data).json()
     f = open("token.txt", "w")
-    f.write(json.dumps(response.json()))
+    f.write(json.dumps(token_data))
     f.close()
-    return response.json()["token"]
+    return token_data["token"]
 
 def generic_get(path):
     token = get_manager_token()
